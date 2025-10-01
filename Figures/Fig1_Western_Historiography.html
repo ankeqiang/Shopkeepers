@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline of Shopkeeper Studies</title>
+    <style>
+        body {
+            font-family: Georgia, serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f6f3;
+            color: #2c3e50;
+        }
+        .timeline-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #3498db;
+            transform: translateX(-50%);
+        }
+        .decade {
+            margin: 40px 0;
+            position: relative;
+        }
+        .decade-label {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 20px;
+            background: #f8f6f3;
+            padding: 0 20px;
+            display: inline-block;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .study {
+            position: relative;
+            margin: 15px 0;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 45%;
+        }
+        .study.left {
+            float: left;
+            margin-right: 5%;
+        }
+        .study.right {
+            float: right;
+            margin-left: 5%;
+        }
+        .study::before {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #3498db;
+            border: 3px solid #f8f6f3;
+            border-radius: 50%;
+            top: 20px;
+        }
+        .study.left::before {
+            right: -32px;
+        }
+        .study.right::before {
+            left: -32px;
+        }
+        .year {
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 1.1em;
+        }
+        .author {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .title {
+            font-style: italic;
+            color: #34495e;
+            margin: 5px 0;
+        }
+        .location {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .type {
+            background: #ecf0f1;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: #2c3e50;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        .legend {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="timeline-container">
+        <h1>Timeline of Shopkeeper Studies in Western Societies</h1>
+        
+        <div class="timeline">
+            <div class="decade">
+                <div class="decade-label">1970s</div>
+                <div class="clearfix">
+                    <div class="study left">
+                        <div class="year">1971</div>
+                        <div class="author">Bechhofer, Elliott & Rushforth</div>
+                        <div class="title">"The Market Situation of Small Shopkeepers"</div>
+                        <div class="location">Scotland</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                    <div class="study right">
+                        <div class="year">1971</div>
+                        <div class="author">Chatelain, Abel</div>
+                        <div class="title">"Lutte Entre Colporteurs et Boutiquiers en France"</div>
+                        <div class="location">France (19th century)</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                    <div class="study left">
+                        <div class="year">1974</div>
+                        <div class="author">Cairns, John C.</div>
+                        <div class="title">"A Nation of Shopkeepers in Search of a Suitable France"</div>
+                        <div class="location">France (1919-1940)</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                    <div class="study right">
+                        <div class="year">1975</div>
+                        <div class="author">Johnson, Paul Edward</div>
+                        <div class="title">"A Shopkeeper's Millennium"</div>
+                        <div class="location">Rochester, NY (1815-1837)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                    <div class="study left">
+                        <div class="year">1979</div>
+                        <div class="author">LeYaouanq, Jean</div>
+                        <div class="title">"La Mobilité Sociale dans le Milieu Boutiquier Parisien"</div>
+                        <div class="location">Paris (19th century)</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="decade">
+                <div class="decade-label">1980s</div>
+                <div class="clearfix">
+                    <div class="study right">
+                        <div class="year">1981</div>
+                        <div class="author">Nord, Philip</div>
+                        <div class="title">"Le Mouvement Des Petits Commerçants Et La Politique En France"</div>
+                        <div class="location">France (1888-1914)</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                    <div class="study left">
+                        <div class="year">1982</div>
+                        <div class="author">Jones, Joseph</div>
+                        <div class="title">"Vichy France and Postwar Economic Modernization"</div>
+                        <div class="location">France</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                    <div class="study right">
+                        <div class="year">1987</div>
+                        <div class="author">Hosgood, Christopher Philip</div>
+                        <div class="title">"Shopkeepers and Society"</div>
+                        <div class="location">Leicester (1860-1914)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                    <div class="study left">
+                        <div class="year">1989</div>
+                        <div class="author">Hosgood, Christopher P.</div>
+                        <div class="title">"The 'Pigmies of Commerce' and the Working-Class Community"</div>
+                        <div class="location">England (1870-1914)</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                    <div class="study right">
+                        <div class="year">1989</div>
+                        <div class="author">Morris, Jonathan</div>
+                        <div class="title">"The Political Economy of Shopkeeping in Milan"</div>
+                        <div class="location">Milan (1885-1905)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="decade">
+                <div class="decade-label">1990s</div>
+                <div class="clearfix">
+                    <div class="study left">
+                        <div class="year">1991</div>
+                        <div class="author">Crouch, Charles Patric</div>
+                        <div class="title">"The Petite Bourgeoisie of Paris"</div>
+                        <div class="location">Paris (1814-1830)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                    <div class="study right">
+                        <div class="year">1991</div>
+                        <div class="author">Jones, John</div>
+                        <div class="title">"Fixed-Shop Retailing in Wolverhampton"</div>
+                        <div class="location">Wolverhampton (1870-1914)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                    <div class="study left">
+                        <div class="year">1995</div>
+                        <div class="author">Rogers, James L., II</div>
+                        <div class="title">"Domestic Shopkeepers in Mid-Victorian Lancashire"</div>
+                        <div class="location">Lancashire</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                    <div class="study right">
+                        <div class="year">1996</div>
+                        <div class="author">Coombs, Claire Daphne</div>
+                        <div class="title">"Heroism and Xenophobia: French Shopkeeper Politics"</div>
+                        <div class="location">France (20th century)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="decade">
+                <div class="decade-label">2000s</div>
+                <div class="clearfix">
+                    <div class="study left">
+                        <div class="year">2005</div>
+                        <div class="author">Shorb, Patrick Naoya</div>
+                        <div class="title">"Retailing Society, Retailing the State: Shopkeeper Politics in Modern Japan"</div>
+                        <div class="location">Japan (1868-1945)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                    <div class="study right">
+                        <div class="year">2005</div>
+                        <div class="author">Weinstein, Benjamin</div>
+                        <div class="title">"Shopkeepers and Gentlemen: Liberal Politics of Early-Victorian London"</div>
+                        <div class="location">London</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                    <div class="study left">
+                        <div class="year">2006</div>
+                        <div class="author">Loberg, Molly Jean</div>
+                        <div class="title">"Berlin Streets: Politics, Commerce and Crowds"</div>
+                        <div class="location">Berlin (1918-1938)</div>
+                        <div class="type">PhD Dissertation</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="decade">
+                <div class="decade-label">2010s</div>
+                <div class="clearfix">
+                    <div class="study right">
+                        <div class="year">2012</div>
+                        <div class="author">Coquery, Natacha</div>
+                        <div class="title">"Melting Shops: A History of Foreign Shopkeepers in France"</div>
+                        <div class="location">France</div>
+                        <div class="type">Journal Article</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <strong>Note:</strong> Timeline shows publication dates. Historical periods studied often differ from publication years.
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Centrality Profiles</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .table-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .table-header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        thead th {
+            background-color: #f1f3f5;
+            color: #495057;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        td {
+            padding: 16px;
+            vertical-align: top;
+        }
+        
+        /* Profile Type Column - Make it stand out */
+        td:first-child {
+            font-weight: 600;
+            color: #5f3dc4;
+            background-color: #f8f9ff;
+            border-right: 3px solid #e7e5ff;
+        }
+        
+        /* Centrality Measures - Use badges */
+        .centrality-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 2px;
+            white-space: nowrap;
+        }
+        
+        .badge-low {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-moderate {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .badge-high {
+            background-color: #fce4ec;
+            color: #c2185b;
+        }
+        
+        .badge-very-high {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        /* Node Type Column */
+        .node-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node-person {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .node-org {
+            background-color: #fff9c4;
+            color: #f57f17;
+        }
+        
+        .node-both {
+            background-color: #e1f5fe;
+            color: #0277bd;
+        }
+        
+        /* Examples Column */
+        .examples {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #495057;
+            line-height: 1.8;
+        }
+        
+        .period {
+            color: #868e96;
+            font-weight: 600;
+        }
+        
+        /* Structural Signature */
+        .signature {
+            font-style: italic;
+            color: #495057;
+            font-size: 13px;
+        }
+        
+        /* Interpretation */
+        .interpretation {
+            color: #212529;
+            line-height: 1.5;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            table {
+                font-size: 13px;
+            }
+            
+            td, th {
+                padding: 12px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background-color: white;
+            }
+            
+            .table-container {
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+            
+            tbody tr:hover {
+                background-color: transparent;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Table 1. Network Centrality Profiles and Structural Roles</h2>
+            <p>Typology of nodes within the Shenbao shopkeeper affiliation networks (Periods 1–5)</p>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Profile Type</th>
+                    <th>Centrality Measures</th>
+                    <th>Structural Signature</th>
+                    <th>Heuristic Interpretation</th>
+                    <th>Node Type</th>
+                    <th>Empirical Examples</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Peripheral / Episodic</td>
+                    <td>
+                        <span class="centrality-badge badge-low">Degree: Low</span><br>
+                        <span class="centrality-badge badge-low">Between: Low</span><br>
+                        <span class="centrality-badge badge-low">Eigen: Low</span>
+                    </td>
+                    <td class="signature">Isolated or weakly connected nodes; appear in small components</td>
+                    <td class="interpretation">One-off mentions, event-driven visibility, anecdotal reporting</td>
+                    <td><span class="node-type node-both">PERSON or ORG</span></td>
+                    <td class="examples">Most small shops; minor offices</td>
+                </tr>
+                
+                <tr>
+                    <td>Narrative Bridge</td>
+                    <td>
+                        <span class="centrality-badge badge-low">Degree: Low–Mod</span><br>
+                        <span class="centrality-badge badge-high">Between: High</span><br>
+                        <span class="centrality-badge badge-low">Eigen: Low</span>
+                    </td>
+                    <td class="signature">Lies on shortest paths between otherwise weakly linked clusters</td>
+                    <td class="interpretation">Legal intermediaries, spokesmen, or case-specific figures connecting domains (court–shop–police)</td>
+                    <td><span class="node-type node-person">PERSON > ORG</span></td>
+                    <td class="examples">
+                        陳司馬 <span class="period">(P1)</span><br>
+                        馮存仁 <span class="period">(P1)</span><br>
+                        王金元 <span class="period">(P3)</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Attachment Hub</td>
+                    <td>
+                        <span class="centrality-badge badge-high">Degree: High</span><br>
+                        <span class="centrality-badge badge-moderate">Between: Mod</span><br>
+                        <span class="centrality-badge badge-low">Eigen: Low–Mod</span>
+                    </td>
+                    <td class="signature">Many ties, but weak core embeddedness</td>
+                    <td class="interpretation">Routine sites of interaction: regulation, policing, licensing, inspection</td>
+                    <td><span class="node-type node-org">ORG</span></td>
+                    <td class="examples">
+                        巡防局 <span class="period">(P2)</span><br>
+                        上海縣署 <span class="period">(P1–2)</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Institutional Core Member</td>
+                    <td>
+                        <span class="centrality-badge badge-moderate">Degree: Mod–High</span><br>
+                        <span class="centrality-badge badge-moderate">Between: Mod</span><br>
+                        <span class="centrality-badge badge-high">Eigen: High</span>
+                    </td>
+                    <td class="signature">Embedded in dense, mutually reinforcing cluster</td>
+                    <td class="interpretation">Stable institutions that structure the press field across many articles</td>
+                    <td><span class="node-type node-org">ORG</span></td>
+                    <td class="examples">
+                        工部局 <span class="period">(P1–5)</span><br>
+                        工程局 <span class="period">(P3–4)</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Elite Institutional Interlock</td>
+                    <td>
+                        <span class="centrality-badge badge-high">Degree: High</span><br>
+                        <span class="centrality-badge badge-high">Between: High</span><br>
+                        <span class="centrality-badge badge-high">Eigen: High</span>
+                    </td>
+                    <td class="signature">Hub + broker + core simultaneously</td>
+                    <td class="interpretation">Exceptional actors whose repeated interactions span multiple institutional domains</td>
+                    <td><span class="node-type node-person">PERSON</span></td>
+                    <td class="examples">
+                        朱葆三 <span class="period">(P3–4)</span><br>
+                        潘公展 <span class="period">(P5)</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>Domain-Specific Pole</td>
+                    <td>
+                        <span class="centrality-badge badge-moderate">Degree: Mod</span><br>
+                        <span class="centrality-badge badge-moderate">Between: Mod</span><br>
+                        <span class="centrality-badge badge-high">Eigen: High (local)</span>
+                    </td>
+                    <td class="signature">Core within a specific functional domain</td>
+                    <td class="interpretation">Banking, relief, or judicial subfields temporarily central</td>
+                    <td><span class="node-type node-org">ORG</span></td>
+                    <td class="examples">
+                        中華銀行 <span class="period">(P3)</span><br>
+                        中國紅十字會總會 <span class="period">(P3–4)</span>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>State Apex Node</td>
+                    <td>
+                        <span class="centrality-badge badge-very-high">Degree: Very High</span><br>
+                        <span class="centrality-badge badge-very-high">Between: Very High</span><br>
+                        <span class="centrality-badge badge-very-high">Eigen: Very High</span>
+                    </td>
+                    <td class="signature">Dominates all centrality measures</td>
+                    <td class="interpretation">Institutional concentration of authority; state-centered visibility</td>
+                    <td><span class="node-type node-org">ORG</span></td>
+                    <td class="examples">
+                        上海特區地方法院 <span class="period">(P5)</span><br>
+                        國民政府 <span class="period">(P5)</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 16px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+        <p style="margin: 0; font-size: 13px; color: #856404;">
+            <strong>Note:</strong> Centrality measures are relative within each period-specific network. 
+            "Low," "Moderate," and "High" refer to position within the distribution rather than absolute values. 
+            Period abbreviations: P1 (1872–1884), P2 (1885–1902), P3 (1903–1916), P4 (1917–1932), P5 (1933–1949).
+        </p>
+    </div>
+</body>
+</html>

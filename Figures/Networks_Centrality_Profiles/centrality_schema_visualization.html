@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centrality Profile Schema</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg width="1200" height="900" viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg">
+            <!-- Define gradients and styles -->
+            <defs>
+                <!-- Gradient for high centrality zones -->
+                <radialGradient id="highGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#764ba2;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#667eea;stop-opacity:0.1" />
+                </radialGradient>
+                
+                <radialGradient id="moderateGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#f093fb;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#f5576c;stop-opacity:0.1" />
+                </radialGradient>
+                
+                <radialGradient id="lowGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#4facfe;stop-opacity:0.2" />
+                    <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:0.05" />
+                </radialGradient>
+                
+                <!-- Arrow marker -->
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#495057" />
+                </marker>
+            </defs>
+            
+            <!-- Title -->
+            <text x="600" y="40" text-anchor="middle" style="font-size: 24px; font-weight: 600; fill: #212529;">
+                Figure A1. Centrality Profile Schema
+            </text>
+            <text x="600" y="65" text-anchor="middle" style="font-size: 14px; fill: #6c757d;">
+                Press-Mediated Affiliation Networks (Shenbao, 1872–1949)
+            </text>
+            
+            <!-- Main coordinate system -->
+            <g transform="translate(600, 500)">
+                
+                <!-- Axes -->
+                <!-- Horizontal axis (Degree) -->
+                <line x1="-400" y1="0" x2="400" y2="0" stroke="#495057" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="420" y="5" style="font-size: 14px; font-weight: 600; fill: #495057;">Degree</text>
+                <text x="420" y="25" style="font-size: 12px; fill: #6c757d;">(Frequency)</text>
+                
+                <!-- Vertical axis (Eigenvector) -->
+                <line x1="0" y1="350" x2="0" y2="-350" stroke="#495057" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="10" y="-360" style="font-size: 14px; font-weight: 600; fill: #495057;">Eigenvector</text>
+                <text x="10" y="-345" style="font-size: 12px; fill: #6c757d;">(Core Embeddedness)</text>
+                
+                <!-- Diagonal axis (Betweenness) -->
+                <line x1="-280" y1="280" x2="280" y2="-280" stroke="#495057" stroke-width="2" stroke-dasharray="5,5" opacity="0.7"/>
+                <text x="-380" y="300" style="font-size: 14px; font-weight: 600; fill: #495057;">Betweenness</text>
+                <text x="-380" y="315" style="font-size: 12px; fill: #6c757d;">(Narrative Routing)</text>
+                
+                <!-- Profile Zones -->
+                
+                <!-- 1. Institutional Hub (top-right) -->
+                <ellipse cx="250" cy="-250" rx="120" ry="80" fill="url(#highGrad)" stroke="#764ba2" stroke-width="2"/>
+                <text x="250" y="-270" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #5f3dc4;">Institutional Hub</text>
+                <text x="250" y="-255" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">High D + High E + High B</text>
+                <text x="250" y="-235" text-anchor="middle" style="font-size: 12px; fill: #212529;">工部局</text>
+                <text x="250" y="-220" text-anchor="middle" style="font-size: 12px; fill: #212529;">國民政府</text>
+                
+                <!-- 2. Core-Embedded Institution (upper-middle) -->
+                <ellipse cx="0" cy="-280" rx="100" ry="70" fill="url(#highGrad)" stroke="#667eea" stroke-width="2"/>
+                <text x="0" y="-295" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #5f3dc4;">Core-Embedded</text>
+                <text x="0" y="-280" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">Mod D + High E</text>
+                <text x="0" y="-265" text-anchor="middle" style="font-size: 12px; fill: #212529;">財政部</text>
+                
+                <!-- 3. Elite Institutional Interlock (top-center-right) -->
+                <ellipse cx="150" cy="-200" rx="110" ry="75" fill="url(#moderateGrad)" stroke="#e91e63" stroke-width="2"/>
+                <text x="150" y="-220" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #c2185b;">Elite Interlock</text>
+                <text x="150" y="-205" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">High on all three</text>
+                <text x="150" y="-185" text-anchor="middle" style="font-size: 12px; fill: #212529;">朱葆三 (P3–4)</text>
+                <text x="150" y="-170" text-anchor="middle" style="font-size: 12px; fill: #212529;">林康侯 (P5)</text>
+                
+                <!-- 4. Narrative Bridge (left-center, high betweenness) -->
+                <ellipse cx="-200" cy="-50" rx="100" ry="70" fill="url(#moderateGrad)" stroke="#f5576c" stroke-width="2"/>
+                <text x="-200" y="-70" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #c2185b;">Narrative Bridge</text>
+                <text x="-200" y="-55" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">Low–Mod D + High B</text>
+                <text x="-200" y="-35" text-anchor="middle" style="font-size: 12px; fill: #212529;">陳司馬</text>
+                <text x="-200" y="-20" text-anchor="middle" style="font-size: 12px; fill: #212529;">莫邑尊</text>
+                
+                <!-- 5. Judicial Gatekeeper (center-left) -->
+                <ellipse cx="-100" cy="-120" rx="110" ry="75" fill="url(#moderateGrad)" stroke="#f093fb" stroke-width="2"/>
+                <text x="-100" y="-140" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #7b1fa2;">Judicial Gatekeeper</text>
+                <text x="-100" y="-125" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">Mod D + Very High B</text>
+                <text x="-100" y="-105" text-anchor="middle" style="font-size: 12px; fill: #212529;">英界會審公廨</text>
+                <text x="-100" y="-90" text-anchor="middle" style="font-size: 12px; fill: #212529;">特區法院</text>
+                
+                <!-- 6. Regulatory Repeat Actor (right-lower) -->
+                <ellipse cx="200" cy="100" rx="100" ry="70" fill="url(#lowGrad)" stroke="#4facfe" stroke-width="2"/>
+                <text x="200" y="80" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #0277bd;">Regulatory Repeat</text>
+                <text x="200" y="95" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">Mod D + Low B</text>
+                <text x="200" y="115" text-anchor="middle" style="font-size: 12px; fill: #212529;">朱森庭</text>
+                <text x="200" y="130" text-anchor="middle" style="font-size: 12px; fill: #212529;">張柄樞</text>
+                
+                <!-- 7. Episodic Hinge (lower-left) -->
+                <ellipse cx="-180" cy="150" rx="90" ry="60" fill="url(#lowGrad)" stroke="#00f2fe" stroke-width="2"/>
+                <text x="-180" y="140" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #0277bd;">Episodic Hinge</text>
+                <text x="-180" y="155" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">Low D + Non-trivial B</text>
+                
+                <!-- 8. Diffuse Peripheral (bottom-left) -->
+                <ellipse cx="-250" cy="250" rx="80" ry="55" fill="url(#lowGrad)" stroke="#b0bec5" stroke-width="2" stroke-dasharray="3,3"/>
+                <text x="-250" y="245" text-anchor="middle" style="font-size: 13px; font-weight: 700; fill: #546e7a;">Diffuse Peripheral</text>
+                <text x="-250" y="260" text-anchor="middle" style="font-size: 11px; fill: #6c757d;">Low on all dimensions</text>
+                
+                <!-- Grid lines (subtle) -->
+                <line x1="-400" y1="-150" x2="400" y2="-150" stroke="#dee2e6" stroke-width="1" opacity="0.3" stroke-dasharray="2,2"/>
+                <line x1="-400" y1="150" x2="400" y2="150" stroke="#dee2e6" stroke-width="1" opacity="0.3" stroke-dasharray="2,2"/>
+                <line x1="-150" y1="-350" x2="-150" y2="350" stroke="#dee2e6" stroke-width="1" opacity="0.3" stroke-dasharray="2,2"/>
+                <line x1="150" y1="-350" x2="150" y2="350" stroke="#dee2e6" stroke-width="1" opacity="0.3" stroke-dasharray="2,2"/>
+                
+            </g>
+            
+            <!-- Legend -->
+            <g transform="translate(50, 820)">
+                <text x="0" y="0" style="font-size: 13px; font-weight: 600; fill: #212529;">Dimension Key:</text>
+                <text x="0" y="20" style="font-size: 12px; fill: #495057;">
+                    <tspan style="font-weight: 600;">D</tspan> = Degree (frequency of appearance)
+                </text>
+                <text x="0" y="40" style="font-size: 12px; fill: #495057;">
+                    <tspan style="font-weight: 600;">B</tspan> = Betweenness (narrative routing)
+                </text>
+                <text x="0" y="60" style="font-size: 12px; fill: #495057;">
+                    <tspan style="font-weight: 600;">E</tspan> = Eigenvector (core embeddedness)
+                </text>
+                
+                <text x="400" y="0" style="font-size: 13px; font-weight: 600; fill: #212529;">Profile Types:</text>
+                <circle cx="410" cy="15" r="8" fill="url(#highGrad)" stroke="#764ba2" stroke-width="1.5"/>
+                <text x="425" y="20" style="font-size: 12px; fill: #495057;">High centrality (institutional cores)</text>
+                
+                <circle cx="410" cy="35" r="8" fill="url(#moderateGrad)" stroke="#e91e63" stroke-width="1.5"/>
+                <text x="425" y="40" style="font-size: 12px; fill: #495057;">Moderate/mixed (bridges, gatekeepers)</text>
+                
+                <circle cx="410" cy="55" r="8" fill="url(#lowGrad)" stroke="#4facfe" stroke-width="1.5"/>
+                <text x="425" y="60" style="font-size: 12px; fill: #495057;">Low/peripheral (episodic, diffuse)</text>
+            </g>
+            
+            <!-- Note -->
+            <g transform="translate(50, 895)">
+                <text x="0" y="0" style="font-size: 11px; font-style: italic; fill: #6c757d;">
+                    Note: Positions represent ideal-typical discursive roles, not empirical coordinates. Profiles indicate modes of visibility
+                </text>
+                <text x="0" y="15" style="font-size: 11px; font-style: italic; fill: #6c757d;">
+                    and institutional encounter in Shenbao's reporting, not social power or network membership.
+                </text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>

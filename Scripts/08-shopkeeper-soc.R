@@ -83,6 +83,21 @@ cat("Unique origins identified:", nrow(origin), "\n")
 # Some articles mention multiple shops, stored in Shop, Shop1-5 columns
 # Generate frequency counts for each column
 
+## Split data in Shop
+# Split Shop into up to 5 columns
+shops_socdt <- shops_socdt %>%
+  separate(Shop, 
+           into = c("Shop1", "Shop2", "Shop3", "Shop4", "Shop5"),
+           sep = "[,;、]",  # Common separators: comma, semicolon, Chinese pause mark
+           fill = "right",
+           remove = FALSE,  # Keep original Institution column
+           extra = "merge") # If more than 5, merge extras into Institution5
+
+# Clean up whitespace in new columns
+shops_socdt <- shops_socdt %>%
+  mutate(across(starts_with("Shop"), trimws))
+
+
 # Main shop column (concatenated values)
 shop <- shops_socdt %>% 
   group_by(Shop) %>% 
@@ -146,6 +161,20 @@ cat("Unique locations identified:", nrow(location), "\n")
 # 3.6 Institutions (Multiple Columns)
 # Articles often mention multiple institutions (courts, police, guilds, etc.)
 
+## Split data in Institution
+# Split Institution into up to 5 columns
+shops_socdt <- shops_socdt %>%
+  separate(Institution, 
+           into = c("Institution1", "Institution2", "Institution3", "Institution4", "Institution5"),
+           sep = "[,;、]",  # Common separators: comma, semicolon, Chinese pause mark
+           fill = "right",
+           remove = FALSE,  # Keep original Institution column
+           extra = "merge") # If more than 5, merge extras into Institution5
+
+# Clean up whitespace in new columns
+shops_socdt <- shops_socdt %>%
+  mutate(across(starts_with("Institution"), trimws))
+
 # Main institution column (concatenated values)
 institutions <- shops_socdt %>% 
   group_by(Institution) %>% 
@@ -182,6 +211,31 @@ cat("Institution frequency tables generated\n")
 
 # 3.7 Shop Types
 # Categories of businesses (tea shop, rice shop, pawn shop, etc.)
+
+# Split Shop_Type into up to 5 columns
+Type_Multi <- Type_Multi %>%
+  separate(Shop_Type, 
+           into = c("st1", "st2", "st3", "st4", "st5", "st6", "st7", "st8", "st9", "st10", "st11", "st12", "st13", "st14", "st15", "st16", "st17", "st18", "st19", "st20", "st21", "st22"),
+           sep = "[,;、]",  # Common separators: comma, semicolon, Chinese pause mark
+           fill = "right",
+           remove = FALSE,  # Keep original Institution column
+           extra = "drop") 
+
+# Clean up whitespace in new columns
+Type_Multi <- Type_Multi %>%
+  mutate(across(starts_with("Shop_Type"), trimws))
+# Select only DocId and st columns
+Type_Multi_Col <- Type_Multi %>% 
+  select(DocId, st1, st2, st3, st4, st5, st6, st7, st8, st9, st10, 
+         st11, st12, st13, st14, st15, st16, st17, st18, st19, st20, st21, st22)
+Type_Multi_Long <- Type_Multi_Col %>%
+  pivot_longer(cols = starts_with("st"),
+               names_to = "shop_type_number",
+               values_to = "shop_type",
+               values_drop_na = TRUE)  # Remove rows where shop_type is NA
+
+
+# Main shoptype column (concatenated values)
 shoptype <- shops_socdt %>% 
   group_by(Shop_Type) %>% 
   count() %>%

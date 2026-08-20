@@ -1,4 +1,4 @@
-# Shopkeepers in Modern China
+# Shopkeepers in Shanghai
 
 This repository contains the data, R scripts, and analytical outputs for a computational study of shopkeepers in the Chinese- and English-language press published in China from the late nineteenth to the mid-twentieth century.
 

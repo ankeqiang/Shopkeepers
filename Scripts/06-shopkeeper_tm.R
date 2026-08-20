@@ -2,7 +2,7 @@
 # SHOPKEEPERS IN THE SHENBAO: TOPIC MODELING ANALYSIS
 # ============================================================================
 # This script performs Structural Topic Modeling (STM) on a corpus of articles
-# about shopkeepers from the Shenbao newspaper (1872-1949). 
+# about shopkeepers from the Shenbao newspaper (1872-1949).
 #
 # Topic modeling is an unsupervised machine learning technique that discovers
 # abstract "topics" that occur in a collection of documents. Each topic is
@@ -20,7 +20,13 @@
 #   4. Model selection (comparing 5-10 topics)
 #   5. Model estimation and interpretation
 #   6. Temporal analysis of topic prevalence
-#   7. Interactive visualization
+#   7. Publication-quality figures for the primary (8-topic) model
+#   8. Interactive visualization
+#
+# The eight-topic model (mod.8) is the one used throughout the accompanying
+# blog post: it has the best semantic coherence among the fitted models and
+# is the model behind every figure and close-reading claim in that post. The
+# other K values (6, 7, 10) are kept as documented alternatives.
 # ============================================================================
 
 # ----------------------------------------------------------------------------
@@ -29,7 +35,8 @@
 # Load required packages for topic modeling and visualization
 
 library(histtext)      # For historical Chinese text processing
-library(tidyverse)     # For data manipulation and visualization
+library(tidyverse)     # For data manipulation and visualization (includes
+                        # ggplot2, dplyr, tidyr, stringr, readr)
 library(stm)           # Structural Topic Model package
 library(stminsights)   # Interactive visualization for STM results
 
@@ -91,7 +98,6 @@ shoptok <- shoptok %>%
 shoptok <- shoptok %>%
   mutate(Year = as.numeric(substr(DocId, 5, 8)))
 
-
 # Save progress
 save.image('shoptm.RData')
 
@@ -99,11 +105,11 @@ save.image('shoptm.RData')
 # 5. ADDITIONAL TEXT CLEANING
 # ----------------------------------------------------------------------------
 # Remove texts without Chinese characters (likely OCR errors)
-shoptok_filt <- shoptok %>% 
+shoptok_filt <- shoptok %>%
   filter(stringr::str_detect(Text, "[\\p{Han}]"))
 
 # Extract year information for later use
-shoptok_year <- shoptok %>% 
+shoptok_year <- shoptok %>%
   select(DocId, Year)
 
 # Remove any remaining excess whitespace
@@ -117,7 +123,7 @@ write_csv(shoptok_filt, "shoptok_filt.csv")
 # 6. PREPARING FINAL DATASET WITH METADATA
 # ----------------------------------------------------------------------------
 # Join tokenized text with metadata (DocId and Year)
-shop_doc <- shoptok_filt %>% 
+shop_doc <- shoptok_filt %>%
   select(DocId, Year)
 
 # Inner join to ensure all documents have complete metadata
@@ -172,7 +178,7 @@ chinese_stopwords <- c(
   "後", "氏", "上", "尙", "奏", "稟", "一併", "一百", "欵", "雖",
   "昨", "出", "自", "共", "以上", "前來", "啓", "則", "開", "明",
   "詎", "之下", "何處",
-  
+
   # Extended stopwords (Modern and Traditional Chinese)
   "按", "按照", "俺", "俺們", "阿", "別", "別人", "別處", "別是",
   "別的", "別管", "別說", "不僅", "不但", "不光", "不單", "不只",
@@ -248,8 +254,8 @@ chinese_stopwords <- c(
   "總的來說", "總的來看", "總之", "在於", "在下", "諸", "諸位",
   "諸如", "咱們", "咱", "作為", "只", "最", "照著", "照", "直到",
   "綜上所述", "賊死", "逐步", "遵照", "遵循", "針對", "致", "者",
-  "則甚", "則", 
-  
+  "則甚", "則",
+
   # Interjections and exclamations
   "咳", "哇", "哈", "哈哈", "哉", "哎", "哎呀", "哎喲",
   "嘩", "喲", "哦", "哩", "矣哉", "矣乎", "焉", "毋寧", "歟", "嘿嘿",
@@ -264,7 +270,7 @@ chinese_stopwords <- c(
 stop_pattern <- paste(chinese_stopwords, collapse = "|")
 
 # Apply stopword removal
-shoptok3 <- shoptok3 %>% 
+shoptok3 <- shoptok3 %>%
   mutate(Text = str_remove_all(Text, stop_pattern))
 
 # ----------------------------------------------------------------------------
@@ -274,21 +280,42 @@ shoptok3 <- shoptok3 %>%
 # These terms appear in ALL documents and don't help differentiate topics
 # Also remove additional common location/quantity terms
 
-shoptok3 <- shoptok3 %>% 
+shoptok3 <- shoptok3 %>%
   mutate(Text = str_remove_all(
     Text,
     "坊主|店主|棧主|莊主|號主|行主|鋪主|館主|店主婦|店東|東家|東主|店家|掌櫃|商戶|業主|○昨|○初|附近|左近|千百|〇"
   ))
+
+# ----------------------------------------------------------------------------
+# 10. FINAL PUNCTUATION AND SYMBOL SWEEP
+# ----------------------------------------------------------------------------
+# Strips stray punctuation and symbol characters left in the tokenized text,
+# both half-width ASCII forms (e.g. "(", ")") and full-width/CJK forms (e.g.
+# "（", "）", "〔", "〕"). Left unremoved, these were surfacing as top FREX
+# words like "()" and "〔" in the fitted topic models -- they carry no
+# semantic content and only dilute the vocabulary.
+#
+# \\p{P} and \\p{S} are Unicode property classes (punctuation, symbol), so a
+# single pass catches both half- and full-width forms, unlike ASCII-only
+# punctuation stripping. This runs once here, before shopTM is assigned, and
+# the result is cached in shopTM.csv -- there is no need to redo any of the
+# steps above to pick up this cleaning.
+
+shoptok3 <- shoptok3 %>%
+  mutate(Text = str_remove_all(Text, "[\\p{P}\\p{S}]")) %>%
+  mutate(Text = str_squish(Text))
 
 # Save the cleaned dataset for topic modeling
 shopTM <- shoptok3
 write_csv(shopTM, "shopTM.csv")
 
 # ----------------------------------------------------------------------------
-# 10. CREATING PERIOD DIVISIONS (OPTIONAL)
+# 11. CREATING PERIOD DIVISIONS (OPTIONAL)
 # ----------------------------------------------------------------------------
 # Alternative periodization based on different historical criteria
 # This shows a different approach to dividing the corpus temporally
+# (not used elsewhere in this script -- kept as a starting point for anyone
+# who wants to fit period-specific models instead of a single Year covariate)
 
 # Extract year for filtering
 shoptok3$year <- as.numeric(str_sub(shoptok3$DocId, 5, 8))
@@ -308,16 +335,16 @@ save.image('shoptm.RData')
 # ============================================================================
 
 # ----------------------------------------------------------------------------
-# 11. PREPARING METADATA
+# 12. PREPARING METADATA
 # ----------------------------------------------------------------------------
 # Extract metadata that will be used in the topic model
 # Here we use Year as a covariate to model temporal changes in topics
 
-meta <- shopTM %>% 
+meta <- shopTM %>%
   transmute(DocId, Year)
 
 # ----------------------------------------------------------------------------
-# 12. TEXT PREPROCESSING FOR STM
+# 13. TEXT PREPROCESSING FOR STM
 # ----------------------------------------------------------------------------
 # The textProcessor function prepares texts for topic modeling by:
 #   - Tokenizing (already done, so we work with pre-tokenized text)
@@ -328,7 +355,19 @@ meta <- shopTM %>%
 # Important parameters:
 #   - stem = FALSE: Don't apply stemming (not meaningful for Chinese)
 #   - wordLengths = c(2, Inf): Keep words with 2+ characters
-#   - customstopwords: Additional stopwords to remove
+#   - ucp = TRUE: makes textProcessor's own punctuation/number stripping
+#     Unicode-aware, as a second line of defense behind the explicit
+#     regex sweep in step 10 above
+#   - customstopwords: Additional stopwords to remove (the `stop_all` data
+#     frame is assumed loaded from the corpus-construction script, same as
+#     shop_bind_tok2; it needs a `word` column)
+#
+# The two stopifnot() guards below fail fast, with a clear message, if a
+# prerequisite is missing -- cheaper than discovering it mid-run after
+# several expensive steps have already re-executed.
+
+stopifnot(!any(duplicated(shopTM$DocId)))
+stopifnot(exists("stop_all"))
 
 corpus <- stm::textProcessor(
   shopTM$Text,
@@ -336,6 +375,7 @@ corpus <- stm::textProcessor(
   stem = FALSE,                    # No stemming for Chinese
   wordLengths = c(2, Inf),         # Keep words ≥2 characters
   verbose = FALSE,
+  ucp = TRUE,                      # Unicode-aware punctuation/number stripping
   customstopwords = stop_all$word  # Additional custom stopwords
 )
 
@@ -343,7 +383,7 @@ corpus <- stm::textProcessor(
 words <- as_tibble(corpus$vocab)
 
 # ----------------------------------------------------------------------------
-# 13. EXPLORING WORD FREQUENCY THRESHOLDS
+# 14. EXPLORING WORD FREQUENCY THRESHOLDS
 # ----------------------------------------------------------------------------
 # Visualize how many terms would be removed at different frequency thresholds
 # This helps decide on an appropriate lower threshold
@@ -352,7 +392,7 @@ words <- as_tibble(corpus$vocab)
 stm::plotRemoved(corpus$documents, lower.thresh = c(0, 10, by=5))
 
 # ----------------------------------------------------------------------------
-# 14. PREPARING DOCUMENTS FOR MODELING
+# 15. PREPARING DOCUMENTS FOR MODELING
 # ----------------------------------------------------------------------------
 # The prepDocuments function:
 #   - Removes very rare terms (appearing in < lower.thresh documents)
@@ -366,10 +406,15 @@ out <- stm::prepDocuments(
   lower.thresh = 2    # Remove words appearing in fewer than 2 documents
 )
 
-# Results from prepDocuments:
-# - Removed 659,386 of 794,733 terms (748,656 of 4,455,663 tokens)
-# - Removed 87 documents with no words after filtering
-# - Final corpus: 82,896 documents, 135,347 terms, 3,707,007 tokens
+# Results from prepDocuments (verified run, with the punctuation/symbol
+# sweep and ucp = TRUE from steps 10 and 13 above both in place):
+#   Removing 695,563 of 839,579 terms (787,854 of 4,622,944 tokens) due to
+#     frequency
+#   Removing 41 documents with no words
+#   Final corpus: 59,106 documents, 144,016 terms, 3,835,090 tokens
+# These are the counts the rest of this script -- and the accompanying blog
+# post -- are built on. If you change any preprocessing step above, re-run
+# this call and expect these numbers to shift.
 
 # Inspect what was removed
 wordsremoved <- as_tibble(out$words.removed)
@@ -380,46 +425,54 @@ docremoved <- as_tibble(out$docs.removed)
 # ============================================================================
 
 # ----------------------------------------------------------------------------
-# 15. FIXING DATA ALIGNMENT ISSUES
+# 16. VERIFYING DOCUMENT/METADATA ALIGNMENT
 # ----------------------------------------------------------------------------
-# Sometimes there's a mismatch between documents and metadata
-# This section diagnoses and fixes any alignment problems
+# textProcessor() and prepDocuments() match documents to metadata by
+# POSITION, not by name: `corpus$documents`/`out$documents` and
+# `corpus$meta`/`out$meta` come out of these calls already aligned
+# one-to-one, and under normal operation never drift apart on their own.
+# (A tempting-looking fix is to re-align by matching names(out$documents)
+# against out$meta$DocId -- that does NOT work, because textProcessor()'s
+# internal use of tm::VectorSource() discards any names on the input text
+# vector, so names(out$documents) are just sequential labels ("1","2","3",
+# ...), never DocIds. Matching those against real DocId strings returns
+# zero overlap, which silently reduces both objects to zero rows -- passing
+# an alignment check trivially, since an empty set matches an empty set,
+# while actually discarding the entire corpus.)
+#
+# What prepDocuments() has no way to know about is our own substantive
+# filtering criterion: documents whose Year is NA. Because out$documents and
+# out$meta are still guaranteed aligned by position at this point, it is
+# safe to compute that drop list from out$meta alone and apply the identical
+# index vector to both objects together.
 
-# Check dimensions
 cat("Documents:", length(out$documents), "\n")
 cat("Meta rows:", nrow(out$meta), "\n")
 cat("Vocab length:", length(out$vocab), "\n")
 
-# Fix alignment if needed - keep only matching indices
-valid_indices <- seq_len(min(length(out$documents), nrow(out$meta)))
-out$documents <- out$documents[valid_indices]
-out$meta <- out$meta[valid_indices, ]
+# Sanity check: prepDocuments()/textProcessor() should already guarantee
+# this -- fail loudly if not
+stopifnot(length(out$documents) == nrow(out$meta))
 
-# Verify the fix
-cat("After fix - Documents:", length(out$documents), "\n")
-cat("After fix - Meta rows:", nrow(out$meta), "\n")
+cat("NAs in Year:", sum(is.na(out$meta$Year)), "\n")
 
-# Check for NA values in Year column
-cat("NAs in Year column:", sum(is.na(out$meta$Year)), "\n")
-
-# Examine Year structure
-str(out$meta$Year)
-table(out$meta$Year, useNA="always")
-
-# Remove documents with NA years if present
-if(sum(is.na(out$meta$Year)) > 0) {
-  valid_rows <- !is.na(out$meta$Year)
-  out$documents <- out$documents[valid_rows]
-  out$meta <- out$meta[valid_rows, ]
-  
-  cat("After removing NAs:\n")
-  cat("Documents:", length(out$documents), "\n")
-  cat("Meta rows:", nrow(out$meta), "\n")
-  cat("NAs in Year:", sum(is.na(out$meta$Year)), "\n")
+bad_idx <- which(is.na(out$meta$Year))
+if (length(bad_idx) > 0) {
+  out$documents <- out$documents[-bad_idx]
+  out$meta      <- out$meta[-bad_idx, , drop = FALSE]
 }
 
+cat("After fix - Documents:", length(out$documents), "\n")
+cat("After fix - Meta rows:", nrow(out$meta), "\n")
+cat("After fix - NAs in Year:", sum(is.na(out$meta$Year)), "\n")
+
+# Hard assertions: documents and meta are aligned one-to-one, and the
+# corpus isn't empty
+stopifnot(length(out$documents) == nrow(out$meta))
+stopifnot(length(out$documents) > 0)
+
 # ----------------------------------------------------------------------------
-# 16. MODEL SELECTION: COMPARING DIFFERENT NUMBERS OF TOPICS
+# 17. MODEL SELECTION: COMPARING DIFFERENT NUMBERS OF TOPICS
 # ----------------------------------------------------------------------------
 # The searchK function fits models with different numbers of topics (K)
 # and compares them using multiple diagnostic measures:
@@ -429,7 +482,12 @@ if(sum(is.na(out$meta$Year)) > 0) {
 # - Semantic Coherence: Higher is better (words in topics co-occur more)
 # - Lower Bound: Higher is better (overall model fit)
 #
-# We test models from 5 to 10 topics to find the optimal number
+# Semantic coherence is the one diagnostic of the four that is NOT
+# monotonic in K, which is why it carries the most weight below: the other
+# three will favor the largest K available almost by construction. Run
+# once, over the full intended K range, on the now-verified-aligned data
+# from step 16 -- splitting this into multiple partial runs risks silently
+# comparing models fit on inconsistent data.
 
 set.seed(1111)  # Set seed for reproducibility
 K <- seq(5, 10, by=1)  # Test 5, 6, 7, 8, 9, 10 topics
@@ -449,6 +507,17 @@ plot(kresult)
 # Save progress
 save.image('shoptm.RData')
 
+# Interpretation (see the accompanying blog post's Methodology section for
+# the full discussion): held-out likelihood, residuals, and the lower bound
+# all move in the same, largely uninformative direction as K grows -- a
+# model with more topics will almost always fit a little better on these
+# three measures alone. Semantic coherence is not monotonic: in this
+# corpus it peaks at K=5 and K=8, dips at K=6-7, and drops sharply at K=9
+# before a partial recovery at K=10 that still falls short of the K=8
+# peak. Combined with exclusivity (how distinctly a topic's words belong
+# to it, checked separately once the K=8 model below is fit), K=8 comes
+# out ahead of every other candidate on both axes at once, which is why it
+# is the model used throughout the rest of this script and the blog post.
 
 # ============================================================================
 # PART 5: ESTIMATING TOPIC MODELS
@@ -460,17 +529,7 @@ save.image('shoptm.RData')
 # Estimate four models with different numbers of topics
 # The prevalence formula (~ Year) models how topic proportions change over time
 
-# 5-topic model
-mod.5 <- stm::stm(
-  out$documents,
-  out$vocab,
-  K = 5,
-  data = out$meta,
-  prevalence = ~ Year,  # Topic proportions vary by year
-  verbose = FALSE
-)
-
-# 6-topic model (recommended by diagnostics)
+# 6-topic model (most parsimonious candidate)
 mod.6 <- stm::stm(
   out$documents,
   out$vocab,
@@ -480,7 +539,7 @@ mod.6 <- stm::stm(
   verbose = FALSE
 )
 
-# 7-topic model
+# 7-topic model (intermediate candidate)
 mod.7 <- stm::stm(
   out$documents,
   out$vocab,
@@ -490,7 +549,20 @@ mod.7 <- stm::stm(
   verbose = FALSE
 )
 
-# 10-topic model
+# 8-topic model (primary model used throughout the analysis: best semantic
+# coherence among the fitted models, plus the best coherence/exclusivity
+# trade-off overall)
+mod.8 <- stm::stm(
+  out$documents,
+  out$vocab,
+  K = 8,
+  data = out$meta,
+  prevalence = ~ Year,  # Topic proportions vary by year
+  verbose = FALSE
+)
+
+# 10-topic model (higher-granularity alternative; contains a redundant
+# near-duplicate topic pair -- see the blog post's Methodology section)
 mod.10 <- stm::stm(
   out$documents,
   out$vocab,
@@ -506,9 +578,9 @@ mod.10 <- stm::stm(
 # The estimateEffect function quantifies how topic prevalence changes with Year
 # This allows us to test whether topics significantly increase or decrease over time
 
-Year5 <- stm::estimateEffect(1:5 ~ Year, mod.5, meta = out$meta)
 Year6 <- stm::estimateEffect(1:6 ~ Year, mod.6, meta = out$meta)
 Year7 <- stm::estimateEffect(1:7 ~ Year, mod.7, meta = out$meta)
+Year8 <- stm::estimateEffect(1:8 ~ Year, mod.8, meta = out$meta)
 Year10 <- stm::estimateEffect(1:10 ~ Year, mod.10, meta = out$meta)
 
 # Save all models
@@ -524,9 +596,9 @@ save.image('shoptm.RData')
 # Extract the proportion of each topic in each document
 # This creates a document-topic matrix showing topic distributions
 
-topicprop5 <- make.dt(mod.5, meta)
 topicprop6 <- make.dt(mod.6, meta)
 topicprop7 <- make.dt(mod.7, meta)
+topicprop8 <- make.dt(mod.8, meta)
 topicprop10 <- make.dt(mod.10, meta)
 
 # ----------------------------------------------------------------------------
@@ -535,9 +607,9 @@ topicprop10 <- make.dt(mod.10, meta)
 # Histogram showing the distribution of topic proportions across all documents
 # This reveals which topics are more prevalent overall
 
-plot.STM(mod.5, "hist")   # 5-topic model
 plot.STM(mod.6, "hist")   # 6-topic model
 plot.STM(mod.7, "hist")   # 7-topic model
+plot.STM(mod.8, "hist")   # 8-topic model (primary)
 plot.STM(mod.10, "hist")  # 10-topic model
 
 # ----------------------------------------------------------------------------
@@ -546,9 +618,9 @@ plot.STM(mod.10, "hist")  # 10-topic model
 # Display the most important topics and their top words
 # n parameter controls how many top words to show per topic
 
-plot.STM(mod.5, "summary", n=5)   # Top 5 words for each topic
 plot.STM(mod.6, "summary", n=6)
 plot.STM(mod.7, "summary", n=7)
+plot.STM(mod.8, "summary", n=8)   # Top 8 words for each topic
 plot.STM(mod.10, "summary", n=10)
 
 # ----------------------------------------------------------------------------
@@ -562,9 +634,9 @@ plot.STM(mod.10, "summary", n=10)
 #
 # FREX and Score are often most useful for interpretation
 
-labelTopics(mod.5, n=10)   # Show top 10 words per topic
 labelTopics(mod.6, n=10)
 labelTopics(mod.7, n=10)
+labelTopics(mod.8, n=10)   # Show top 10 words per topic (primary model)
 labelTopics(mod.10, n=10)
 
 # ----------------------------------------------------------------------------
@@ -573,12 +645,13 @@ labelTopics(mod.10, n=10)
 # Word clouds provide visual representation of topic word distributions
 # Size indicates word importance in the topic
 
-# 5-topic model word clouds
-cloud(mod.5, topic = 1, scale = c(4, 0.4))
-cloud(mod.5, topic = 2, scale = c(4, 0.4))
-cloud(mod.5, topic = 3, scale = c(4, 0.4))
-cloud(mod.5, topic = 4, scale = c(4, 0.4))
-cloud(mod.5, topic = 5, scale = c(4, 0.4))
+# 8-topic model word clouds (primary model)
+cloud(mod.8, topic = 1, scale = c(4, 0.4))
+cloud(mod.8, topic = 2, scale = c(4, 0.4))
+cloud(mod.8, topic = 3, scale = c(4, 0.4))
+cloud(mod.8, topic = 4, scale = c(4, 0.4))
+cloud(mod.8, topic = 5, scale = c(4, 0.4))
+cloud(mod.8, topic = 6, scale = c(5, 0.6))
 
 # 7-topic model word clouds
 cloud(mod.7, topic = 1, scale = c(4, 0.4))
@@ -603,10 +676,10 @@ cloud(mod.10, topic = 6, scale = c(4, 0.4))
 # of each topic (highest proportion of that topic)
 # This helps interpret what each topic is actually about
 
-# 5-topic model examples
-T5_thoughts1 <- findThoughts(mod.5, texts=shopTM$Text, topics=1, n=5)$docs[[1]]
-T5_thoughts2 <- findThoughts(mod.5, texts=shopTM$Text, topics=2, n=5)$docs[[1]]
-T5_thoughts3 <- findThoughts(mod.5, texts=shopTM$Text, topics=3, n=5)$docs[[1]]
+# 8-topic model examples (primary model)
+T8_thoughts1 <- findThoughts(mod.8, texts=shopTM$Text, topics=1, n=5)$docs[[1]]
+T8_thoughts2 <- findThoughts(mod.8, texts=shopTM$Text, topics=2, n=5)$docs[[1]]
+T8_thoughts3 <- findThoughts(mod.8, texts=shopTM$Text, topics=3, n=5)$docs[[1]]
 
 # 10-topic model examples
 T10_thoughts1 <- findThoughts(mod.10, texts=shopTM$Text, topics=1, n=5)$docs[[1]]
@@ -616,9 +689,9 @@ T10_thoughts4 <- findThoughts(mod.10, texts=shopTM$Text, topics=4, n=5)$docs[[1]
 
 # Plot representative quotes for selected topics
 par(mfrow=c(1,3), mar=c(1,1,2,2))
-plotQuote(T5_thoughts1, width=50, maxwidth=400, text.cex=0.8, main="Topic 1")
-plotQuote(T5_thoughts2, width=50, maxwidth=400, text.cex=0.8, main="Topic 2")
-plotQuote(T5_thoughts3, width=50, maxwidth=400, text.cex=0.8, main="Topic 3")
+plotQuote(T8_thoughts1, width=50, maxwidth=400, text.cex=0.8, main="Topic 1")
+plotQuote(T8_thoughts2, width=50, maxwidth=400, text.cex=0.8, main="Topic 2")
+plotQuote(T8_thoughts3, width=50, maxwidth=400, text.cex=0.8, main="Topic 3")
 par(mfrow=c(1, 1))  # Reset to single plot
 
 # ============================================================================
@@ -630,9 +703,9 @@ par(mfrow=c(1, 1))  # Reset to single plot
 # ----------------------------------------------------------------------------
 # Extract just the topic proportion columns (removing DocId)
 
-topic5prop <- topicprop5 %>% select(c(2:6))      # Topics 1-5
 topic6prop <- topicprop6 %>% select(c(2:7))      # Topics 1-6
 topic7prop <- topicprop7 %>% select(c(2:8))      # Topics 1-7
+topic8prop <- topicprop8 %>% select(c(2:9))      # Topics 1-8 (primary model)
 topic10prop <- topicprop10 %>% select(c(2:11))   # Topics 1-10
 
 # ----------------------------------------------------------------------------
@@ -640,12 +713,6 @@ topic10prop <- topicprop10 %>% select(c(2:11))   # Topics 1-10
 # ----------------------------------------------------------------------------
 # Calculate the average proportion of each topic per year
 # This shows how topics wax and wane over the newspaper's history
-
-topic_proportion_per_year5 <- aggregate(
-  topic5prop,
-  by = list(Year = meta$Year),
-  mean
-)
 
 topic_proportion_per_year6 <- aggregate(
   topic6prop,
@@ -659,6 +726,12 @@ topic_proportion_per_year7 <- aggregate(
   mean
 )
 
+topic_proportion_per_year8 <- aggregate(
+  topic8prop,
+  by = list(Year = meta$Year),
+  mean
+)
+
 topic_proportion_per_year10 <- aggregate(
   topic10prop,
   by = list(Year = meta$Year),
@@ -666,16 +739,24 @@ topic_proportion_per_year10 <- aggregate(
 )
 
 # Export temporal data for external analysis
-write_csv(topic_proportion_per_year5, "topic_proportion_per_year5.csv")
 write_csv(topic_proportion_per_year6, "topic_proportion_per_year6.csv")
 write_csv(topic_proportion_per_year7, "topic_proportion_per_year7.csv")
+write_csv(topic_proportion_per_year8, "topic_proportion_per_year8.csv")
 write_csv(topic_proportion_per_year10, "topic_proportion_per_year10.csv")
 
 # Export document-level topic proportions
-write_csv(topic5prop, "topic5prop.csv")
 write_csv(topic6prop, "topic6prop.csv")
 write_csv(topic7prop, "topic7prop.csv")
+write_csv(topic8prop, "topic8prop.csv")
 write_csv(topic10prop, "topic10prop.csv")
+
+# Also export the full make.dt() output (topic proportions + DocId + Year),
+# which is what the figures in Part 8 below and the blog post's close
+# reading both key off of
+write_csv(topicprop6, "topicprop6.csv")
+write_csv(topicprop7, "topicprop7.csv")
+write_csv(topicprop8, "topicprop8.csv")
+write_csv(topicprop10, "topicprop10.csv")
 
 # ----------------------------------------------------------------------------
 # 28. RESHAPING DATA FOR VISUALIZATION
@@ -685,84 +766,225 @@ write_csv(topic10prop, "topic10prop.csv")
 
 library(reshape)
 
-vizDataFrame5y <- melt(topic_proportion_per_year5, id.vars = "Year")
 vizDataFrame6y <- melt(topic_proportion_per_year6, id.vars = "Year")
 vizDataFrame7y <- melt(topic_proportion_per_year7, id.vars = "Year")
+vizDataFrame8y <- melt(topic_proportion_per_year8, id.vars = "Year")
 vizDataFrame10y <- melt(topic_proportion_per_year10, id.vars = "Year")
 
 # ----------------------------------------------------------------------------
-# 29. VISUALIZING TEMPORAL TRENDS: STACKED BAR CHARTS
+# 29. QUICK EXPLORATORY VISUALIZATION: STACKED BAR CHARTS
 # ----------------------------------------------------------------------------
-# Stacked bar charts show the changing composition of topics over time
-# Each year's bar shows the relative proportion of all topics
+# Stacked bar charts show the changing composition of topics over time.
+# Each year's bar shows the relative proportion of all topics. These are
+# fast, generic-palette charts meant for exploring any candidate model --
+# see Part 8 below for the polished, fixed-palette figures actually used
+# in the blog post (currently only built for the 8-topic model).
 
 library(pals)  # For color palettes
 
-# 5-topic model temporal visualization
-ggplot(vizDataFrame5y, aes(x=Year, y=value, fill=variable)) + 
+# 6-topic model temporal visualization
+ggplot(vizDataFrame6y, aes(x=Year, y=value, fill=variable)) +
   geom_bar(stat = "identity") +
-  ylab("proportion") + 
+  ylab("proportion") +
   scale_fill_manual(
     values = paste0(alphabet(20), "FF"),  # Color palette with full opacity
     name = "Topic"
-  ) + 
+  ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(
-    title = "Shopkeepers in the Shenbao (1872-1949)", 
-    subtitle = "Topic proportion over time (5-topic model)"
-  )
-
-# 6-topic model temporal visualization
-ggplot(vizDataFrame6y, aes(x=Year, y=value, fill=variable)) + 
-  geom_bar(stat = "identity") +
-  ylab("proportion") + 
-  scale_fill_manual(
-    values = paste0(alphabet(20), "FF"),
-    name = "Topic"
-  ) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  labs(
-    title = "Shopkeepers in the Shenbao (1872-1949)", 
+    title = "Shopkeepers in the Shenbao (1872-1949)",
     subtitle = "Topic proportion over time (6-topic model)"
   )
 
 # 7-topic model temporal visualization
-ggplot(vizDataFrame7y, aes(x=Year, y=value, fill=variable)) + 
+ggplot(vizDataFrame7y, aes(x=Year, y=value, fill=variable)) +
   geom_bar(stat = "identity") +
-  ylab("proportion") + 
+  ylab("proportion") +
   scale_fill_manual(
     values = paste0(alphabet(20), "FF"),
     name = "Topic"
-  ) + 
+  ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(
-    title = "Shopkeepers in the Shenbao (1872-1949)", 
+    title = "Shopkeepers in the Shenbao (1872-1949)",
     subtitle = "Topic proportion over time (7-topic model)"
   )
 
-# 10-topic model temporal visualization
-ggplot(vizDataFrame10y, aes(x=Year, y=value, fill=variable)) + 
+# 8-topic model temporal visualization (primary model)
+ggplot(vizDataFrame8y, aes(x=Year, y=value, fill=variable)) +
   geom_bar(stat = "identity") +
-  ylab("proportion") + 
+  ylab("proportion") +
   scale_fill_manual(
     values = paste0(alphabet(20), "FF"),
     name = "Topic"
-  ) + 
+  ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   labs(
-    title = "Shopkeepers in the Shenbao (1872-1949)", 
+    title = "Shopkeepers in the Shenbao (1872-1949)",
+    subtitle = "Topic proportion over time (8-topic model)"
+  )
+
+# 10-topic model temporal visualization
+ggplot(vizDataFrame10y, aes(x=Year, y=value, fill=variable)) +
+  geom_bar(stat = "identity") +
+  ylab("proportion") +
+  scale_fill_manual(
+    values = paste0(alphabet(20), "FF"),
+    name = "Topic"
+  ) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(
+    title = "Shopkeepers in the Shenbao (1872-1949)",
     subtitle = "Topic proportion over time (10-topic model)"
   )
 
-# Save final workspace
+# Save progress
 save.image('shoptm.RData')
 
 # ============================================================================
-# PART 8: INTERACTIVE VISUALIZATION
+# PART 8: PUBLICATION-QUALITY FIGURES (8-TOPIC MODEL)
+# ============================================================================
+# The two figures below reproduce, exactly, the figures used in the
+# accompanying blog post. Both use a fixed topic-number-to-color mapping so
+# a given topic keeps the same color across every figure in the post, and
+# both write out to a PNG via a cairo device -- some installed graphics
+# packages (e.g. ragg) silently override ggsave()'s `type =` argument
+# otherwise, which is what the custom device wrapper below works around.
+#
+# CHANGE `out_dir` below to wherever you want the PNGs written before
+# running this section.
+
+out_dir <- "./figures"   # <- change to your own output folder
+if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+cairo_png_device <- function(filename, width, height, res, ...) {
+  grDevices::png(filename = filename, width = width, height = height,
+                 units = "in", res = res, type = "cairo", ...)
+}
+
+# Fixed topic labels and fixed topic -> color slots, shared by both figures
+# below (one color per topic NUMBER, never reassigned/recycled)
+fig_labels <- c(
+  Topic1 = "Medical & Pharmaceutical Advertising",
+  Topic2 = "Police-Referred Civil & Criminal Cases",
+  Topic3 = "Classified Ads: Lost & Contact Notices",
+  Topic4 = "Political & Administrative Affairs",
+  Topic5 = "China & Society: Everyday Life",
+  Topic6 = "Municipal Governance & Labor Affairs",
+  Topic7 = "Crime & Police Blotter",
+  Topic8 = "Company & Public Notices"
+)
+fig_palette <- c(
+  Topic1 = "#2a78d6", Topic2 = "#eb6834", Topic3 = "#1baf7a", Topic4 = "#eda100",
+  Topic5 = "#e87ba4", Topic6 = "#008300", Topic7 = "#4a3aa7", Topic8 = "#e34948"
+)
+
+# ----------------------------------------------------------------------------
+# 30. FIGURE 1: MEAN TOPIC SHARES (BAR CHART)
+# ----------------------------------------------------------------------------
+# What the corpus is about, in aggregate: mean document-topic share per
+# topic, sorted largest to smallest. Topics used as narrative sources in
+# the blog post's close-reading section are bolded in the value labels.
+
+narrative_topics <- c("Topic2", "Topic4", "Topic5", "Topic6", "Topic7")
+
+fig1_means <- topicprop8 %>%
+  summarise(across(starts_with("Topic"), mean)) %>%
+  pivot_longer(everything(), names_to = "Topic", values_to = "mean_share") %>%
+  mutate(
+    pct = mean_share * 100,
+    label = fig_labels[Topic],
+    is_narrative = Topic %in% narrative_topics
+  ) %>%
+  arrange(desc(pct))
+
+# Order factor levels so the bars plot largest-at-top
+fig1_means$label <- factor(fig1_means$label, levels = rev(fig1_means$label))
+
+fig1 <- ggplot(fig1_means, aes(x = pct, y = label, fill = Topic)) +
+  geom_col(width = 0.62) +
+  geom_text(aes(label = sprintf("%.1f%%", pct),
+                fontface = ifelse(is_narrative, "bold", "plain")),
+            hjust = -0.15, size = 3.4, color = "#0b0b0b") +
+  scale_fill_manual(values = fig_palette, guide = "none") +
+  scale_x_continuous(limits = c(0, 38), expand = c(0, 0)) +
+  labs(
+    title = "What the corpus is about: TM8 topic shares",
+    x = "Mean document-topic share (%)", y = NULL,
+    caption = "Topics used as narrative sources in the close-reading section shown in bold."
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 13.5, hjust = 0),
+    plot.caption = element_text(hjust = 0, size = 8.5, color = "#52514e", face = "italic"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color = "#e3e2dd", linewidth = 0.4),
+    axis.text.y = element_text(color = "#0b0b0b", size = 10.5),
+    axis.text.x = element_text(color = "#52514e", size = 9.5),
+    axis.title.x = element_text(color = "#52514e", size = 10.5)
+  )
+
+ggsave(file.path(out_dir, "figure1_topic_shares.png"), fig1, width = 9, height = 6,
+       dpi = 200, bg = "white", device = cairo_png_device)
+cat("saved figure1_topic_shares.png\n")
+
+# ----------------------------------------------------------------------------
+# 31. FIGURE 2: TOPIC SHARES OVER TIME (STACKED AREA)
+# ----------------------------------------------------------------------------
+# How the corpus's topic composition shifted, 1872-1949. Topics are
+# stacked largest-to-smallest (bottom to top) rather than by topic number,
+# so the dominant crime/court topics anchor the bottom of the chart.
+
+fig2_long <- topic_proportion_per_year8 %>%
+  pivot_longer(cols = starts_with("Topic"), names_to = "Topic", values_to = "proportion")
+
+fig2_topic_order <- fig2_long %>%
+  group_by(Topic) %>%
+  summarise(mean_share = mean(proportion)) %>%
+  arrange(desc(mean_share)) %>%
+  pull(Topic)
+
+# Reversed so the LARGEST topic draws first / sits at the BOTTOM of the stack
+fig2_long$Topic <- factor(fig2_long$Topic, levels = rev(fig2_topic_order))
+
+fig2 <- ggplot(fig2_long, aes(x = Year, y = proportion * 100, fill = Topic)) +
+  geom_area(position = "stack", color = NA) +
+  scale_fill_manual(values = fig_palette, labels = fig_labels[levels(fig2_long$Topic)],
+                     breaks = rev(levels(fig2_long$Topic))) +  # legend reads largest-first
+  scale_x_continuous(limits = c(min(topic_proportion_per_year8$Year),
+                                 max(topic_proportion_per_year8$Year)), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 100), expand = c(0, 0)) +
+  labs(
+    title = "How the Shenbao's shopkeeper coverage changed, 1872-1949",
+    x = NULL, y = "Share of average document-topic weight (%)", fill = NULL
+  ) +
+  guides(fill = guide_legend(nrow = 4, byrow = TRUE)) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 13.5, hjust = 0),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(color = "#e3e2dd", linewidth = 0.4),
+    axis.text = element_text(color = "#52514e", size = 9),
+    axis.title.y = element_text(color = "#52514e", size = 10),
+    legend.position = "bottom",
+    legend.text = element_text(size = 8.5),
+    legend.key.size = unit(0.4, "cm")
+  )
+
+ggsave(file.path(out_dir, "figure2_topic_shares_over_time.png"), fig2, width = 11, height = 6.5,
+       dpi = 200, bg = "white", device = cairo_png_device)
+cat("saved figure2_topic_shares_over_time.png\n")
+
+save.image('shoptm.RData')
+
+# ============================================================================
+# PART 9: INTERACTIVE VISUALIZATION
 # ============================================================================
 
 # ----------------------------------------------------------------------------
-# 30. LDAVIS INTERACTIVE VISUALIZATION
+# 32. LDAVIS INTERACTIVE VISUALIZATION
 # ----------------------------------------------------------------------------
 # LDAvis provides an interactive web-based visualization of topic models
 # Features include:
@@ -771,17 +993,27 @@ save.image('shoptm.RData')
 #   - Top words for each topic
 #   - Word saliency and relevance metrics
 #
-# This opens in a web browser and allows interactive exploration
+# This opens in a web browser and allows interactive exploration.
+#
+# reorder.topics = FALSE keeps LDAvis's Topic 1..K identical to the fitted
+# model's native Topic 1..K. By default (reorder.topics = TRUE), toLDAvis()
+# re-orders topics by decreasing token-share proportion for display, which
+# means an LDAvis screenshot's "Topic 1" is not necessarily the fitted
+# model's Topic 1 -- and will not match topicprop*.csv or any topic-label
+# file keyed on the model's own numbering. Setting it to FALSE means any
+# LDAvis screenshot's topic number can be read directly against
+# topicprop*.csv and the labels file, with no separate topic-order mapping
+# to keep track of.
 
 set.seed(1111)  # For reproducible layouts
 
-stm::toLDAvis(mod.5, doc=out$documents)   # 5-topic model
-stm::toLDAvis(mod.6, doc=out$documents)   # 6-topic model
-stm::toLDAvis(mod.7, doc=out$documents)   # 7-topic model
-stm::toLDAvis(mod.10, doc=out$documents)  # 10-topic model
+stm::toLDAvis(mod.6, doc=out$documents, reorder.topics = FALSE)   # 6-topic model
+stm::toLDAvis(mod.7, doc=out$documents, reorder.topics = FALSE)   # 7-topic model
+stm::toLDAvis(mod.8, doc=out$documents, reorder.topics = FALSE)   # 8-topic model (primary)
+stm::toLDAvis(mod.10, doc=out$documents, reorder.topics = FALSE)  # 10-topic model
 
 # ----------------------------------------------------------------------------
-# 31. STMINSIGHTS DASHBOARD
+# 33. STMINSIGHTS DASHBOARD
 # ----------------------------------------------------------------------------
 # STMinsights provides a comprehensive Shiny dashboard for exploring STM results
 # Features include:
@@ -791,7 +1023,10 @@ stm::toLDAvis(mod.10, doc=out$documents)  # 10-topic model
 #   - Temporal trends
 #   - Topic correlations
 #
-# This launches an interactive web application
+# This launches an interactive web application. This is also where the
+# actual label-validation pass for the blog post was done: reading full
+# word lists topic by topic against the underlying documents to check that
+# each proposed label actually matched what was in the topic.
 
 library(stminsights)
 run_stminsights()
@@ -802,24 +1037,32 @@ run_stminsights()
 #
 # WORKFLOW SUMMARY:
 # 1. Load and clean tokenized shopkeeper corpus
-# 2. Remove stopwords (general Chinese + domain-specific)
-# 3. Prepare texts and metadata for STM
+# 2. Remove stopwords (general Chinese + domain-specific) and stray
+#    punctuation/symbol characters
+# 3. Prepare texts and metadata for STM, with alignment safety checks
 # 4. Test models with 5-10 topics using diagnostic metrics
-# 5. Estimate models with different K values
+# 5. Estimate models at K = 6, 7, 8, 10 (K=8 is the primary model)
 # 6. Explore topics through words, documents, and visualizations
 # 7. Analyze temporal trends in topic prevalence
-# 8. Create interactive visualizations for detailed exploration
+# 8. Produce the publication-quality figures used in the blog post
+# 9. Create interactive visualizations for detailed exploration
 #
 # NEXT STEPS:
-# - Based on interpretability, select the optimal model 
 # - Assign meaningful labels to topics based on top words and documents
+#   (see stminsights in step 33, and the blog post's topic-label table)
 # - Conduct deeper analysis of temporal trends for specific topics
 # - Potentially estimate models with content covariates or topic correlations
+#   (see stm::topicCorr(), used in the blog post's correlation-network figure)
 # - Use topics as features for further analysis (classification, clustering, etc.)
 #
 # KEY FILES PRODUCED:
 # - shopTM.csv: Cleaned text ready for modeling
-# - topic_proportion_per_year*.csv: Temporal topic trends
-# - topic*prop.csv: Document-level topic distributions
+# - topic_proportion_per_year*.csv: Mean topic proportion by year, per model
+# - topic*prop.csv: Document-level topic proportions only
+# - topicprop*.csv: Document-level topic proportions plus DocId and Year
+#   (this is the file the blog post's figures and close reading are built on,
+#   for K=8 specifically)
+# - figures/figure1_topic_shares.png, figures/figure2_topic_shares_over_time.png:
+#   the two publication-quality figures from Part 8
 # - shoptm.RData: Complete workspace with all models
 # ============================================================================

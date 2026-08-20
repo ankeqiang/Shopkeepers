@@ -6,9 +6,9 @@ The project uses large-scale text analysis to recover a social group that is oft
 
 ## Research scope
 
-The principal Chinese corpus consists of articles from the *Shenbao* (ç”³æŠ¥, 1872â€“1949). Sixteen terms associated with shopkeepers and proprietors are used to locate relevant material:
+The principal Chinese corpus consists of articles from the Shenbao (申报, 1872–1949). Sixteen terms associated with shopkeepers and proprietors are used to locate relevant material:
 
-`åŠä¸»`, `åº—ä¸»`, `æ£§ä¸»/æ ˆä¸»`, `èŽŠä¸»/åº„ä¸»`, `è™Ÿä¸»/å·ä¸»`, `è¡Œä¸»`, `é‹ªä¸»/é“ºä¸»`, `é¤¨ä¸»/é¦†ä¸»`, `åº—ä¸»å©¦/åº—ä¸»å¦‡`, `åº—æ±/åº—ä¸œ`, `æ±å®¶/ä¸œå®¶`, `æ±ä¸»/ä¸œä¸»`, `åº—å®¶`, `æŽŒæ«ƒ/æŽŒæŸœ`, `å•†æˆ¶/å•†æˆ·`, and `æ¥­ä¸»/ä¸šä¸»`.
+坊主, 店主, 棧主/栈主, 莊主/庄主, 號主/号主, 行主, 鋪主/铺主, 館主/馆主, 店主婦/店主妇, 店東/店东, 東家/东家, 東主/东主, 店家, 掌櫃/掌柜, 商戶/商户, and 業主/业主.
 
 The comparative English-language corpus draws on ProQuest's *Chinese Historical Newspapers* collection for the period approximately 1850â€“1950. Its searches use `shopkeeper`, `shopowner`, `shop owner`, and `grocer`.
 
